@@ -366,7 +366,7 @@ class ClassicalFooterWidgetState extends State<ClassicalFooterWidget>
   // 加载结束图标
   IconData get _finishedIcon {
     if (!widget.success) return Icons.error_outline;
-    if (widget.noMore) return Icons.hourglass_empty;
+    if (widget.noMore) return Icons.done;
     return Icons.done;
   }
 
@@ -464,15 +464,19 @@ class ClassicalFooterWidgetState extends State<ClassicalFooterWidget>
             child: SizedBox(
               height: isVertical ? widget.loadIndicatorExtent : double.infinity,
               width: !isVertical ? widget.loadIndicatorExtent : double.infinity,
-              child: isVertical
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _buildContent(isVertical, isReverse),
-                    )
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _buildContent(isVertical, isReverse),
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: isVertical
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: _buildContent(isVertical, isReverse),
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: _buildContent(isVertical, isReverse),
+                      ),
+              ),
             ),
           ),
         ),
@@ -484,79 +488,71 @@ class ClassicalFooterWidgetState extends State<ClassicalFooterWidget>
   List<Widget> _buildContent(bool isVertical, bool isReverse) {
     return isVertical
         ? <Widget>[
-            Expanded(
-              flex: 2,
-              child: Container(
-                alignment: Alignment.centerRight,
-                padding: EdgeInsets.only(
-                  right: 10.0,
-                ),
-                child: (widget.loadState == LoadMode.load ||
-                        widget.loadState == LoadMode.armed) && !widget.noMore
+            Container(
+              alignment: Alignment.centerRight,
+              padding: EdgeInsets.only(
+                right: 10.0,
+              ),
+              child: (widget.loadState == LoadMode.load ||
+                          widget.loadState == LoadMode.armed) &&
+                      !widget.noMore
+                  ? Container(
+                      width: 20.0,
+                      height: 20.0,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.0,
+                        valueColor: AlwaysStoppedAnimation(
+                          widget.classicalFooter.textColor,
+                        ),
+                      ),
+                    )
+                  : widget.loadState == LoadMode.loaded ||
+                          widget.loadState == LoadMode.done ||
+                          (widget.enableInfiniteLoad &&
+                              widget.loadState != LoadMode.loaded) ||
+                          widget.noMore
+                      ? Icon(
+                          _finishedIcon,
+                          color: widget.classicalFooter.textColor,
+                        )
+                      : Transform.rotate(
+                          child: Icon(
+                            !isReverse
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                            color: widget.classicalFooter.textColor,
+                          ),
+                          angle: 2 * pi * _iconRotationValue,
+                        ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                      _showText,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: widget.classicalFooter.textColor,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                    ),
+                widget.classicalFooter.showInfo
                     ? Container(
-                        width: 20.0,
-                        height: 20.0,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.0,
-                          valueColor: AlwaysStoppedAnimation(
-                            widget.classicalFooter.textColor,
+                        margin: EdgeInsets.only(
+                          top: 2.0,
+                        ),
+                        child: Text(
+                          _infoText,
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            color: widget.classicalFooter.infoColor,
                           ),
                         ),
                       )
-                    : widget.loadState == LoadMode.loaded ||
-                            widget.loadState == LoadMode.done ||
-                            (widget.enableInfiniteLoad &&
-                                widget.loadState != LoadMode.loaded) ||
-                            widget.noMore
-                        ? Icon(
-                            _finishedIcon,
-                            color: widget.classicalFooter.textColor,
-                          )
-                        : Transform.rotate(
-                            child: Icon(
-                              !isReverse
-                                  ? Icons.arrow_upward
-                                  : Icons.arrow_downward,
-                              color: widget.classicalFooter.textColor,
-                            ),
-                            angle: 2 * pi * _iconRotationValue,
-                          ),
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    _showText,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: widget.classicalFooter.textColor,
-                    ),
-                  ),
-                  widget.classicalFooter.showInfo
-                      ? Container(
-                          margin: EdgeInsets.only(
-                            top: 2.0,
-                          ),
-                          child: Text(
-                            _infoText,
-                            style: TextStyle(
-                              fontSize: 12.0,
-                              color: widget.classicalFooter.infoColor,
-                            ),
-                          ),
-                        )
-                      : Container(),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: SizedBox(),
-            ),
+                    : Container(),
+              ],
+            )
           ]
         : <Widget>[
             Container(
