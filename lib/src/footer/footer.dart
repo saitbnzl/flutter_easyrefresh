@@ -334,8 +334,6 @@ class ClassicalFooterWidgetState extends State<ClassicalFooterWidget>
           widget.loadState == LoadMode.inactive ||
           widget.loadState == LoadMode.drag) {
         return widget.classicalFooter.loadedText;
-      } else {
-        return widget.classicalFooter.loadingText;
       }
     }
     switch (widget.loadState) {
@@ -430,6 +428,11 @@ class ClassicalFooterWidgetState extends State<ClassicalFooterWidget>
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.enableInfiniteLoad || widget.loadState == LoadMode.loaded ||
+        widget.loadState == LoadMode.inactive ||
+        widget.loadState == LoadMode.drag) {
+      return Container();
+    }
     // 是否为垂直方向
     bool isVertical = widget.axisDirection == AxisDirection.down ||
         widget.axisDirection == AxisDirection.up;
@@ -486,6 +489,7 @@ class ClassicalFooterWidgetState extends State<ClassicalFooterWidget>
 
   // 构建显示内容
   List<Widget> _buildContent(bool isVertical, bool isReverse) {
+
     return isVertical
         ? <Widget>[
             Container(
