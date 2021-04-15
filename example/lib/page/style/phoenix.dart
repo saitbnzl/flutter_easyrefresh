@@ -13,6 +13,7 @@ class PhoenixPage extends StatefulWidget {
     return PhoenixPageState();
   }
 }
+
 class PhoenixPageState extends State<PhoenixPage> {
   // 总数
   int _count = 20;
@@ -29,22 +30,26 @@ class PhoenixPageState extends State<PhoenixPage> {
         footer: PhoenixFooter(),
         onRefresh: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count = 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count = 20;
+              });
+            }
           });
         },
         onLoad: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count += 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count += 20;
+              });
+            }
           });
         },
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) {
+              (context, index) {
                 return SampleListItem();
               },
               childCount: _count,

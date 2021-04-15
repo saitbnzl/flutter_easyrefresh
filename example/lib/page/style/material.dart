@@ -7,13 +7,14 @@ import 'package:flutter_easyrefresh/material_header.dart';
 import 'package:flutter_easyrefresh/material_footer.dart';
 
 /// 质感设计样式
-class MaterialPage extends StatefulWidget {
+class MaterialStylePage extends StatefulWidget {
   @override
   MaterialPageState createState() {
     return MaterialPageState();
   }
 }
-class MaterialPageState extends State<MaterialPage> {
+
+class MaterialPageState extends State<MaterialStylePage> {
   // 总数
   int _count = 20;
 
@@ -29,22 +30,26 @@ class MaterialPageState extends State<MaterialPage> {
         footer: MaterialFooter(),
         onRefresh: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count = 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count = 20;
+              });
+            }
           });
         },
         onLoad: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count += 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count += 20;
+              });
+            }
           });
         },
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) {
+              (context, index) {
                 return SampleListItem();
               },
               childCount: _count,
