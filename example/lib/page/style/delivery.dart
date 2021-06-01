@@ -12,6 +12,7 @@ class DeliveryPage extends StatefulWidget {
     return DeliveryPageState();
   }
 }
+
 class DeliveryPageState extends State<DeliveryPage> {
   // 总数
   int _count = 20;
@@ -30,22 +31,26 @@ class DeliveryPageState extends State<DeliveryPage> {
         ),
         onRefresh: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count = 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count = 20;
+              });
+            }
           });
         },
         onLoad: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count += 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count += 20;
+              });
+            }
           });
         },
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) {
+              (context, index) {
                 return SampleListItem();
               },
               childCount: _count,

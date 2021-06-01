@@ -6,7 +6,6 @@ import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_easyrefresh/bezier_hour_glass_header.dart';
 import 'package:flutter_easyrefresh/bezier_bounce_footer.dart';
 
-
 /// BezierHourGlass样式
 class BezierHourGlassPage extends StatefulWidget {
   @override
@@ -14,6 +13,7 @@ class BezierHourGlassPage extends StatefulWidget {
     return BezierHourGlassPageState();
   }
 }
+
 class BezierHourGlassPageState extends State<BezierHourGlassPage> {
   // 总数
   int _count = 20;
@@ -34,22 +34,26 @@ class BezierHourGlassPageState extends State<BezierHourGlassPage> {
         ),
         onRefresh: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count = 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count = 20;
+              });
+            }
           });
         },
         onLoad: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count += 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count += 20;
+              });
+            }
           });
         },
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) {
+              (context, index) {
                 return SampleListItem();
               },
               childCount: _count,

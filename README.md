@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](/LICENSE)
 [![Awesome Flutter](https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square)](https://stackoverflow.com/questions/tagged/flutter?sort=votes)
-[![Pub](https://img.shields.io/badge/pub-v2.0.4-orange.svg)](https://pub.dartlang.org/packages/flutter_easyrefresh)
+[![Pub](https://img.shields.io/pub/v/flutter_easyrefresh)](https://pub.flutter-io.cn/packages/flutter_easyrefresh)
 
 ## [English](https://github.com/xuelongqy/flutter_easyrefresh/blob/v2/README_EN.md) | 中文
 
@@ -10,16 +10,15 @@
 
 Web版本移步：[vue-easyrefresh](https://github.com/xuelongqy/vue-easyrefresh)
 
-Demo：[下载 APK-Demo](https://github.com/xuelongqy/flutter_easyrefresh/raw/master/v2/art/pkg/EasyRefresh.apk)
+Demo：[下载 apk](https://github.com/xuelongqy/flutter_easyrefresh/raw/master/v2/art/pkg/EasyRefresh.apk) | [web](https://xuelongqy.github.io/flutter_easyrefresh/)
 
 ![](https://raw.githubusercontent.com/xuelongqy/flutter_easyrefresh/master/v2/art/image/apk_QRCode.png)
 
 ## 特点功能:
 
- - 支持Andorid(光晕)，ios(越界回弹)效果
  - 支持绝大多数Widget
  - 支持自定义并且已经集成了很多炫酷的 Header 和 Footer
- - 支持下拉刷新、上拉加载(可自动)
+ - 支持下拉刷新、上拉加载(可控制触发)
  - 支持 Header 和 Footer 列表嵌入以及视图浮动两种形式
  - 支持列表事件监听，制作任何样子的 Header 和 Footer，并且能够放在任何位置
  - 支持首次刷新，并自定义视图
@@ -80,7 +79,7 @@ Demo：[下载 APK-Demo](https://github.com/xuelongqy/flutter_easyrefresh/raw/ma
 ```
 //pub方式
 dependencies:
-  flutter_easyrefresh: ^2.0.4
+  flutter_easyrefresh: version
 
 //导入方式
 dependencies:
@@ -178,9 +177,12 @@ import 'package:flutter_easyrefresh/material_footer.dart';
   )
 ```
 
+## 添加国际化支持
+不提供自带国际化支持，请自行设置ClassicalHeader和ClassicalFooter中需要展示的文字。
+
 # 捐赠
 如果你喜欢我的项目，请在项目右上角 "Star" 一下。你的支持是我最大的鼓励！ ^_^
-你也还可以扫描下面的二维码，或者通过[![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=334PPRBZTY3J8&source=url)，对作者进行打赏。  
+你也还可以扫描下面的二维码，或者通过[![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/paypalme/xuelongqy)，对作者进行打赏。  
 
 ![](https://raw.githubusercontent.com/xuelongqy/donation/master/pay_alipay.jpg?raw=true) ![](https://raw.githubusercontent.com/xuelongqy/donation/master/pay_wxpay.jpg?raw=true) ![](https://raw.githubusercontent.com/xuelongqy/donation/master/pay_tencent.jpg?raw=true)
 

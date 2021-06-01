@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,6 +18,11 @@ class MyApp extends StatelessWidget {
       ),
       // 主页
       home: _Example(),
+      localizationsDelegates: [
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate
+      ],
     );
   }
 }
@@ -29,8 +35,7 @@ class _Example extends StatefulWidget {
 }
 
 class _ExampleState extends State<_Example> {
-
-  EasyRefreshController _controller;
+  late EasyRefreshController _controller;
 
   // 条目总数
   int _count = 20;
@@ -74,14 +79,15 @@ class _ExampleState extends State<_Example> {
           slivers: <Widget>[
             SliverList(
               delegate: SliverChildBuilderDelegate(
-                    (context, index) {
+                (context, index) {
                   return Container(
                     width: 60.0,
                     height: 60.0,
                     child: Center(
                       child: Text('$index'),
                     ),
-                    color: index%2==0 ? Colors.grey[300] : Colors.transparent,
+                    color:
+                        index % 2 == 0 ? Colors.grey[300] : Colors.transparent,
                   );
                 },
                 childCount: _count,
@@ -100,7 +106,6 @@ class _ExampleState extends State<_Example> {
                 _controller.callLoad();
               },
               child: Text("Load more", style: TextStyle(color: Colors.black))),
-        ]
-    );
+        ]);
   }
 }

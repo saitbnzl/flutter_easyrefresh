@@ -18,13 +18,16 @@ abstract class Header {
   final bool float;
 
   /// 完成延时
-  final Duration completeDuration;
+  final Duration? completeDuration;
 
   /// 是否开启无限刷新
   final bool enableInfiniteRefresh;
 
   /// 开启震动反馈
   final bool enableHapticFeedback;
+
+  /// 越界滚动(enableInfiniteRefresh为true生效)
+  final bool overScroll;
 
   Header({
     this.extent = 60.0,
@@ -33,6 +36,7 @@ abstract class Header {
     this.completeDuration,
     this.enableInfiniteRefresh = false,
     this.enableHapticFeedback = false,
+    this.overScroll = true,
   });
 
   // 构造器
@@ -40,7 +44,7 @@ abstract class Header {
       BuildContext context,
       EasyRefresh easyRefresh,
       ValueNotifier<bool> focusNotifier,
-      ValueNotifier<bool> taskNotifier,
+      ValueNotifier<TaskState> taskNotifier,
       ValueNotifier<bool> callRefreshNotifier) {
     return EasyRefreshSliverRefreshControl(
       refreshIndicatorExtent: extent,
@@ -58,8 +62,8 @@ abstract class Header {
       headerFloat: float,
       bindRefreshIndicator: (finishRefresh, resetRefreshState) {
         if (easyRefresh.controller != null) {
-          easyRefresh.controller.finishRefreshCallBack = finishRefresh;
-          easyRefresh.controller.resetRefreshStateCallBack = resetRefreshState;
+          easyRefresh.controller!.finishRefreshCallBack = finishRefresh;
+          easyRefresh.controller!.resetRefreshStateCallBack = resetRefreshState;
         }
       },
     );
@@ -74,10 +78,71 @@ abstract class Header {
       double refreshIndicatorExtent,
       AxisDirection axisDirection,
       bool float,
-      Duration completeDuration,
+      Duration? completeDuration,
       bool enableInfiniteRefresh,
       bool success,
       bool noMore);
+}
+
+/// 通知器Header
+class NotificationHeader extends Header {
+  /// Header
+  final Header header;
+
+  /// 通知器
+  final LinkHeaderNotifier notifier;
+
+  NotificationHeader({
+    required this.header,
+    required this.notifier,
+  }) : super(
+          extent: header.extent,
+          triggerDistance: header.triggerDistance,
+          float: header.float,
+          completeDuration: header.completeDuration,
+          enableInfiniteRefresh: header.enableInfiniteRefresh,
+          enableHapticFeedback: header.enableHapticFeedback,
+        );
+
+  @override
+  Widget contentBuilder(
+      BuildContext context,
+      RefreshMode refreshState,
+      double pulledExtent,
+      double refreshTriggerPullDistance,
+      double refreshIndicatorExtent,
+      AxisDirection axisDirection,
+      bool float,
+      Duration? completeDuration,
+      bool enableInfiniteRefresh,
+      bool success,
+      bool noMore) {
+    // 发起通知
+    this.notifier.contentBuilder(
+        context,
+        refreshState,
+        pulledExtent,
+        refreshTriggerPullDistance,
+        refreshIndicatorExtent,
+        axisDirection,
+        float,
+        completeDuration,
+        enableInfiniteRefresh,
+        success,
+        noMore);
+    return header.contentBuilder(
+        context,
+        refreshState,
+        pulledExtent,
+        refreshTriggerPullDistance,
+        refreshIndicatorExtent,
+        axisDirection,
+        float,
+        completeDuration,
+        enableInfiniteRefresh,
+        success,
+        noMore);
+  }
 }
 
 /// 通用Header
@@ -92,7 +157,7 @@ class CustomHeader extends Header {
     completeDuration,
     enableInfiniteRefresh = false,
     enableHapticFeedback = false,
-    @required this.headerBuilder,
+    required this.headerBuilder,
   }) : super(
           extent: extent,
           triggerDistance: triggerDistance,
@@ -111,7 +176,7 @@ class CustomHeader extends Header {
       double refreshIndicatorExtent,
       AxisDirection axisDirection,
       bool float,
-      Duration completeDuration,
+      Duration? completeDuration,
       bool enableInfiniteRefresh,
       bool success,
       bool noMore) {
@@ -130,17 +195,17 @@ class CustomHeader extends Header {
   }
 }
 
-/// 连接通知器
+/// 链接通知器
 class LinkHeaderNotifier extends ChangeNotifier {
-  BuildContext context;
+  late BuildContext context;
   RefreshMode refreshState = RefreshMode.inactive;
   double pulledExtent = 0.0;
-  double refreshTriggerPullDistance;
-  double refreshIndicatorExtent;
-  AxisDirection axisDirection;
-  bool float;
-  Duration completeDuration;
-  bool enableInfiniteRefresh;
+  late double refreshTriggerPullDistance;
+  late double refreshIndicatorExtent;
+  late AxisDirection axisDirection;
+  late bool float;
+  Duration? completeDuration;
+  late bool enableInfiniteRefresh;
   bool success = true;
   bool noMore = false;
 
@@ -152,7 +217,7 @@ class LinkHeaderNotifier extends ChangeNotifier {
       double refreshIndicatorExtent,
       AxisDirection axisDirection,
       bool float,
-      Duration completeDuration,
+      Duration? completeDuration,
       bool enableInfiniteRefresh,
       bool success,
       bool noMore) {
@@ -167,13 +232,13 @@ class LinkHeaderNotifier extends ChangeNotifier {
     this.enableInfiniteRefresh = enableInfiniteRefresh;
     this.success = success;
     this.noMore = noMore;
-    SchedulerBinding.instance.addPostFrameCallback((Duration timestamp) {
+    SchedulerBinding.instance!.addPostFrameCallback((Duration timestamp) {
       notifyListeners();
     });
   }
 }
 
-/// 连接器Header
+/// 链接器Header
 class LinkHeader extends Header {
   final LinkHeaderNotifier linkNotifier;
 
@@ -200,7 +265,7 @@ class LinkHeader extends Header {
       double refreshIndicatorExtent,
       AxisDirection axisDirection,
       bool float,
-      Duration completeDuration,
+      Duration? completeDuration,
       bool enableInfiniteRefresh,
       bool success,
       bool noMore) {
@@ -226,34 +291,34 @@ class LinkHeader extends Header {
 /// 经典Header
 class ClassicalHeader extends Header {
   /// Key
-  final Key key;
+  final Key? key;
 
   /// 方位
-  final AlignmentGeometry alignment;
+  final AlignmentGeometry? alignment;
 
   /// 提示刷新文字
-  final String refreshText;
+  final String? refreshText;
 
   /// 准备刷新文字
-  final String refreshReadyText;
+  final String? refreshReadyText;
 
   /// 正在刷新文字
-  final String refreshingText;
+  final String? refreshingText;
 
   /// 刷新完成文字
-  final String refreshedText;
+  final String? refreshedText;
 
   /// 刷新失败文字
-  final String refreshFailedText;
+  final String? refreshFailedText;
 
   /// 没有更多文字
-  final String noMoreText;
+  final String? noMoreText;
 
   /// 显示额外信息(默认为时间)
   final bool showInfo;
 
   /// 更多信息
-  final String infoText;
+  final String? infoText;
 
   /// 背景颜色
   final Color bgColor;
@@ -265,22 +330,23 @@ class ClassicalHeader extends Header {
   final Color infoColor;
 
   ClassicalHeader({
-    extent = 60.0,
-    triggerDistance = 70.0,
-    float = false,
-    completeDuration = const Duration(seconds: 1),
-    enableInfiniteRefresh = false,
-    enableHapticFeedback = true,
+    double extent = 60.0,
+    double triggerDistance = 70.0,
+    bool float = false,
+    Duration? completeDuration = const Duration(seconds: 1),
+    bool enableInfiniteRefresh = false,
+    bool enableHapticFeedback = true,
+    bool overScroll = true,
     this.key,
     this.alignment,
-    this.refreshText: "Pull to refresh",
-    this.refreshReadyText: "Release to refresh",
-    this.refreshingText: "Refreshing...",
-    this.refreshedText: "Refresh completed",
-    this.refreshFailedText: "Refresh failed",
-    this.noMoreText: "No more",
+    this.refreshText,
+    this.refreshReadyText,
+    this.refreshingText,
+    this.refreshedText,
+    this.refreshFailedText,
+    this.noMoreText,
     this.showInfo: true,
-    this.infoText: "Updated at %T",
+    this.infoText,
     this.bgColor: Colors.transparent,
     this.textColor: Colors.black,
     this.infoColor: Colors.teal,
@@ -300,6 +366,7 @@ class ClassicalHeader extends Header {
               : completeDuration,
           enableInfiniteRefresh: enableInfiniteRefresh,
           enableHapticFeedback: enableHapticFeedback,
+          overScroll: overScroll,
         );
 
   @override
@@ -311,7 +378,7 @@ class ClassicalHeader extends Header {
       double refreshIndicatorExtent,
       AxisDirection axisDirection,
       bool float,
-      Duration completeDuration,
+      Duration? completeDuration,
       bool enableInfiniteRefresh,
       bool success,
       bool noMore) {
@@ -341,24 +408,24 @@ class ClassicalHeaderWidget extends StatefulWidget {
   final double refreshIndicatorExtent;
   final AxisDirection axisDirection;
   final bool float;
-  final Duration completeDuration;
+  final Duration? completeDuration;
   final bool enableInfiniteRefresh;
   final bool success;
   final bool noMore;
 
   ClassicalHeaderWidget(
-      {Key key,
-      this.refreshState,
-      this.classicalHeader,
-      this.pulledExtent,
-      this.refreshTriggerPullDistance,
-      this.refreshIndicatorExtent,
-      this.axisDirection,
-      this.float,
-      this.completeDuration,
-      this.enableInfiniteRefresh,
-      this.success,
-      this.noMore})
+      {Key? key,
+      required this.refreshState,
+      required this.classicalHeader,
+      required this.pulledExtent,
+      required this.refreshTriggerPullDistance,
+      required this.refreshIndicatorExtent,
+      required this.axisDirection,
+      required this.float,
+      required this.completeDuration,
+      required this.enableInfiniteRefresh,
+      required this.success,
+      required this.noMore})
       : super(key: key);
 
   @override
@@ -381,19 +448,48 @@ class ClassicalHeaderWidgetState extends State<ClassicalHeaderWidget>
     }
   }
 
+  /// 文本
+  String get _refreshText {
+    return widget.classicalHeader.refreshText ?? 'Pull to refresh';
+  }
+
+  String get _refreshReadyText {
+    return widget.classicalHeader.refreshReadyText ?? 'Release to refresh';
+  }
+
+  String get _refreshingText {
+    return widget.classicalHeader.refreshingText ?? 'Refreshing...';
+  }
+
+  String get _refreshedText {
+    return widget.classicalHeader.refreshedText ?? 'Refresh completed';
+  }
+
+  String get _refreshFailedText {
+    return widget.classicalHeader.refreshFailedText ?? 'Refresh failed';
+  }
+
+  String get _noMoreText {
+    return widget.classicalHeader.noMoreText ?? 'No more';
+  }
+
+  String get _infoText {
+    return widget.classicalHeader.infoText ?? 'Update at %T';
+  }
+
   // 是否刷新完成
   bool _refreshFinish = false;
 
   set refreshFinish(bool finish) {
     if (_refreshFinish != finish) {
       if (finish && widget.float) {
-        Future.delayed(widget.completeDuration - Duration(milliseconds: 400),
+        Future.delayed(widget.completeDuration! - Duration(milliseconds: 400),
             () {
           if (mounted) {
             _floatBackController.forward();
           }
         });
-        Future.delayed(widget.completeDuration, () {
+        Future.delayed(widget.completeDuration!, () {
           _floatBackDistance = null;
           _refreshFinish = false;
         });
@@ -403,54 +499,54 @@ class ClassicalHeaderWidgetState extends State<ClassicalHeaderWidget>
   }
 
   // 动画
-  AnimationController _readyController;
-  Animation<double> _readyAnimation;
-  AnimationController _restoreController;
-  Animation<double> _restoreAnimation;
-  AnimationController _floatBackController;
-  Animation<double> _floatBackAnimation;
+  late AnimationController _readyController;
+  late Animation<double> _readyAnimation;
+  late AnimationController _restoreController;
+  late Animation<double> _restoreAnimation;
+  late AnimationController _floatBackController;
+  late Animation<double> _floatBackAnimation;
 
   // Icon旋转度
   double _iconRotationValue = 1.0;
 
   // 浮动时,收起距离
-  double _floatBackDistance;
+  double? _floatBackDistance;
 
   // 显示文字
   String get _showText {
-    if (widget.noMore) return widget.classicalHeader.noMoreText;
+    if (widget.noMore) return _noMoreText;
     if (widget.enableInfiniteRefresh) {
       if (widget.refreshState == RefreshMode.refreshed ||
           widget.refreshState == RefreshMode.inactive ||
           widget.refreshState == RefreshMode.drag) {
-        return widget.classicalHeader.refreshedText;
+        return _finishedText;
       } else {
-        return widget.classicalHeader.refreshingText;
+        return _refreshingText;
       }
     }
     switch (widget.refreshState) {
       case RefreshMode.refresh:
-        return widget.classicalHeader.refreshingText;
+        return _refreshingText;
       case RefreshMode.armed:
-        return widget.classicalHeader.refreshingText;
+        return _refreshingText;
       case RefreshMode.refreshed:
         return _finishedText;
       case RefreshMode.done:
         return _finishedText;
       default:
         if (overTriggerDistance) {
-          return widget.classicalHeader.refreshReadyText;
+          return _refreshReadyText;
         } else {
-          return widget.classicalHeader.refreshText;
+          return _refreshText;
         }
     }
   }
 
   // 刷新结束文字
   String get _finishedText {
-    if (!widget.success) return widget.classicalHeader.refreshFailedText;
-    if (widget.noMore) return widget.classicalHeader.noMoreText;
-    return widget.classicalHeader.refreshedText;
+    if (!widget.success) return _refreshFailedText;
+    if (widget.noMore) return _noMoreText;
+    return _refreshedText;
   }
 
   // 刷新结束图标
@@ -461,16 +557,16 @@ class ClassicalHeaderWidgetState extends State<ClassicalHeaderWidget>
   }
 
   // 更新时间
-  DateTime _dateTime;
+  late DateTime _dateTime;
 
   // 获取更多信息
-  String get _infoText {
+  String get _infoTextStr {
     if (widget.refreshState == RefreshMode.refreshed) {
       _dateTime = DateTime.now();
     }
     String fillChar = _dateTime.minute < 10 ? "0" : "";
-    return widget.classicalHeader.infoText
-        .replaceAll("%T", "${_dateTime.hour}:$fillChar${_dateTime.minute}");
+    return _infoText.replaceAll(
+        "%T", "${_dateTime.hour}:$fillChar${_dateTime.minute}");
   }
 
   @override
@@ -561,33 +657,38 @@ class ClassicalHeaderWidgetState extends State<ClassicalHeaderWidget>
               : isReverse
                   ? _floatBackDistance == null
                       ? 0.0
-                      : (widget.refreshIndicatorExtent - _floatBackDistance)
+                      : (widget.refreshIndicatorExtent - _floatBackDistance!)
                   : null,
           bottom: !isVertical
               ? 0.0
               : !isReverse
                   ? _floatBackDistance == null
                       ? 0.0
-                      : (widget.refreshIndicatorExtent - _floatBackDistance)
+                      : (widget.refreshIndicatorExtent - _floatBackDistance!)
                   : null,
           left: isVertical
               ? 0.0
               : isReverse
                   ? _floatBackDistance == null
                       ? 0.0
-                      : (widget.refreshIndicatorExtent - _floatBackDistance)
+                      : (widget.refreshIndicatorExtent - _floatBackDistance!)
                   : null,
           right: isVertical
               ? 0.0
               : !isReverse
                   ? _floatBackDistance == null
                       ? 0.0
-                      : (widget.refreshIndicatorExtent - _floatBackDistance)
+                      : (widget.refreshIndicatorExtent - _floatBackDistance!)
                   : null,
           child: Container(
-            alignment: widget.classicalHeader.alignment ?? isVertical
-                ? isReverse ? Alignment.topCenter : Alignment.bottomCenter
-                : !isReverse ? Alignment.centerRight : Alignment.centerLeft,
+            alignment: widget.classicalHeader.alignment ??
+                (isVertical
+                    ? isReverse
+                        ? Alignment.topCenter
+                        : Alignment.bottomCenter
+                    : !isReverse
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft),
             width: isVertical
                 ? double.infinity
                 : _floatBackDistance == null
@@ -687,7 +788,7 @@ class ClassicalHeaderWidgetState extends State<ClassicalHeaderWidget>
                             top: 2.0,
                           ),
                           child: Text(
-                            _infoText,
+                            _infoTextStr,
                             style: TextStyle(
                               fontSize: 12.0,
                               color: widget.classicalHeader.infoColor,
@@ -761,7 +862,7 @@ class FirstRefreshHeader extends Header {
       double refreshIndicatorExtent,
       AxisDirection axisDirection,
       bool float,
-      Duration completeDuration,
+      Duration? completeDuration,
       bool enableInfiniteRefresh,
       bool success,
       bool noMore) {

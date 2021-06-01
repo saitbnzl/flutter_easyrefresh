@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_flutter/flare.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_controller.dart';
@@ -8,16 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 
 /// 小黄人动画类型
-enum BobMinionAnimation {
-  Stand, Dance, Jump, Wave
-}
+enum BobMinionAnimation { Stand, Dance, Jump, Wave }
 
 /// 小黄人(Bob)样式
 class BobMinionHeader extends Header {
   /// Key
-  final Key key;
+  final Key? key;
+
   /// 动画类型
   final BobMinionAnimation animation;
+
   /// 背景颜色
   final Color backgroundColor;
 
@@ -28,28 +27,43 @@ class BobMinionHeader extends Header {
     bool enableHapticFeedback = false,
     this.animation = BobMinionAnimation.Stand,
     this.backgroundColor = Colors.transparent,
-  }): super(
-    extent: 80.0,
-    triggerDistance: 100.0,
-    float: false,
-    enableHapticFeedback: enableHapticFeedback,
-    enableInfiniteRefresh: false,
-    completeDuration: const Duration(seconds: 1),
-  );
+  }) : super(
+          extent: 80.0,
+          triggerDistance: 100.0,
+          float: false,
+          enableHapticFeedback: enableHapticFeedback,
+          enableInfiniteRefresh: false,
+          completeDuration: const Duration(seconds: 1),
+        );
 
   @override
-  Widget contentBuilder(BuildContext context, RefreshMode refreshState,
-      double pulledExtent, double refreshTriggerPullDistance,
-      double refreshIndicatorExtent, AxisDirection axisDirection,
-      bool float, Duration completeDuration, bool enableInfiniteRefresh,
-      bool success, bool noMore) {
+  Widget contentBuilder(
+      BuildContext context,
+      RefreshMode refreshState,
+      double pulledExtent,
+      double refreshTriggerPullDistance,
+      double refreshIndicatorExtent,
+      AxisDirection axisDirection,
+      bool float,
+      Duration? completeDuration,
+      bool enableInfiniteRefresh,
+      bool success,
+      bool noMore) {
     // 不能为水平方向以及反向
     assert(axisDirection == AxisDirection.down,
-    'Widget can only be vertical and cannot be reversed'
-    );
-    linkNotifier.contentBuilder(context, refreshState, pulledExtent,
-        refreshTriggerPullDistance, refreshIndicatorExtent, axisDirection,
-        float, completeDuration, enableInfiniteRefresh, success, noMore);
+        'Widget can only be vertical and cannot be reversed');
+    linkNotifier.contentBuilder(
+        context,
+        refreshState,
+        pulledExtent,
+        refreshTriggerPullDistance,
+        refreshIndicatorExtent,
+        axisDirection,
+        float,
+        completeDuration,
+        enableInfiniteRefresh,
+        success,
+        noMore);
     String animationName;
     switch (animation) {
       case BobMinionAnimation.Stand:
@@ -76,19 +90,22 @@ class BobMinionHeader extends Header {
     );
   }
 }
+
 /// 小黄人组件
 class BobMinionHeaderWidget extends StatefulWidget {
   final LinkHeaderNotifier linkNotifier;
+
   /// 动画类型
   final String animation;
+
   /// 背景颜色
   final Color backgroundColor;
 
   const BobMinionHeaderWidget({
-    Key key,
-    this.linkNotifier,
-    this.animation,
-    this.backgroundColor,
+    Key? key,
+    required this.linkNotifier,
+    required this.animation,
+    required this.backgroundColor,
   }) : super(key: key);
 
   @override
@@ -96,13 +113,16 @@ class BobMinionHeaderWidget extends StatefulWidget {
     return BobMinionHeaderWidgetState();
   }
 }
+
 class BobMinionHeaderWidgetState extends State<BobMinionHeaderWidget> {
   RefreshMode get _refreshState => widget.linkNotifier.refreshState;
+
   double get _pulledExtent => widget.linkNotifier.pulledExtent;
+
   double get _indicatorExtent => widget.linkNotifier.refreshIndicatorExtent;
 
   // 动画控制器
-  BobMinionController _flareControls;
+  late BobMinionController _flareControls;
 
   @override
   void initState() {
@@ -130,11 +150,13 @@ class BobMinionHeaderWidgetState extends State<BobMinionHeaderWidget> {
             alignment: Alignment.center,
             width: double.infinity,
             height: _pulledExtent > _indicatorExtent
-                ? _pulledExtent : _indicatorExtent,
+                ? _pulledExtent
+                : _indicatorExtent,
             color: widget.backgroundColor,
             child: Container(
               height: 80.0,
-              child: FlareActor("assets/flare/Bob (Minion).flr",
+              child: FlareActor(
+                "assets/flare/Bob(Minion).flr",
                 alignment: Alignment.center,
                 animation: 'idle',
                 fit: BoxFit.fitHeight,
@@ -151,15 +173,13 @@ class BobMinionHeaderWidgetState extends State<BobMinionHeaderWidget> {
 /// 小黄人动画控制器
 class BobMinionController extends FlareController {
   /// The current [FlutterActorArtboard].
-  FlutterActorArtboard _artboard;
+  late FlutterActorArtboard _artboard;
 
   /// 动画列表
-  List<String> _animationList = [
-    "Stand", "Dance", "Jump", "Wave"
-  ];
+  List<String> _animationList = ["Stand", "Dance", "Jump", "Wave"];
 
   /// The current [ActorAnimation].
-  String _animationName;
+  late String _animationName;
   double _mixSeconds = 0.1;
 
   /// The [FlareAnimationLayer]s currently active.
@@ -170,10 +190,8 @@ class BobMinionController extends FlareController {
   void initialize(FlutterActorArtboard artboard) {
     _artboard = artboard;
     _animationLayers = _animationList.map<FlareAnimationLayer>((animationName) {
-      var animation = artboard.getAnimation(animationName);
-      return FlareAnimationLayer()
-        ..name = animationName
-        ..animation = animation
+      var animation = artboard.getAnimation(animationName)!;
+      return FlareAnimationLayer(animationName, animation)
         ..mix = 1.0
         ..mixSeconds = 0.2;
     }).toList();
@@ -214,14 +232,14 @@ class BobMinionController extends FlareController {
     /// the two instead of immediately switching to the new one.
     for (int i = 0; i < _animationLayers.length; i++) {
       FlareAnimationLayer layer = _animationLayers[i];
+
       /// Apply the animation with the current mix.
       if (layer.name == _animationName) {
         layer.mix += elapsed;
         layer.time += elapsed;
 
-        lastMix = (_mixSeconds == null || _mixSeconds == 0.0)
-            ? 1.0
-            : min(1.0, layer.mix / _mixSeconds);
+        lastMix =
+            (_mixSeconds == 0.0) ? 1.0 : min(1.0, layer.mix / _mixSeconds);
 
         /// Loop the time if needed.
         if (layer.animation.isLooping) {

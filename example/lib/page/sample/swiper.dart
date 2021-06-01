@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:example/widget/sample_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
 
 /// Swiper示例
 class SwiperPage extends StatefulWidget {
@@ -12,6 +12,7 @@ class SwiperPage extends StatefulWidget {
     return SwiperPageState();
   }
 }
+
 class SwiperPageState extends State<SwiperPage> {
   // 条目总数
   int _count = 20;
@@ -20,7 +21,7 @@ class SwiperPageState extends State<SwiperPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: EasyRefresh.builder(
-        builder: (context, physics, header, footer){
+        builder: (context, physics, header, footer) {
           return CustomScrollView(
             physics: physics,
             slivers: <Widget>[
@@ -33,7 +34,7 @@ class SwiperPageState extends State<SwiperPage> {
                   title: Text('Swiper'),
                 ),
               ),
-              header,
+              header!,
               SliverList(
                 delegate: SliverChildListDelegate([
                   Container(
@@ -53,29 +54,30 @@ class SwiperPageState extends State<SwiperPage> {
                 ]),
               ),
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return SampleListItem();
-                  },
-                  childCount: _count
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  return SampleListItem();
+                }, childCount: _count),
               ),
-              footer,
+              footer!,
             ],
           );
         },
         onRefresh: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count = 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count = 20;
+              });
+            }
           });
         },
         onLoad: () async {
           await Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _count += 20;
-            });
+            if (mounted) {
+              setState(() {
+                _count += 20;
+              });
+            }
           });
         },
       ),

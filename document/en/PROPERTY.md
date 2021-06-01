@@ -113,6 +113,7 @@ class _ExampleState extends State<Example> {
 | topBouncing | Top rebound (onRefresh takes effect when null) | bool | true | Optional |
 | bottomBouncing | Bottom rebound (onLoad takes effect when null) | bool     | true | Optional |
 | scrollController | Scroll controller | ScrollController | null | Optional |
+| behavior | Scroll behavior | Behavior | EmptyOverScrollScrollBehavior | Optional |
 | Other parameters | Consistent with CustomScrollView | Consistent with CustomScrollView parameters | null | Optional(EasyRefresh.custom) |
 
 # Props Table - EasyRefreshController
@@ -160,3 +161,14 @@ class _ExampleState extends State<Example> {
 | enableHapticFeedback | Whether to enable vibration feedback | bool | false | Optional |
 | footerBuilder | Footer builder| LoadControlBuilder | null | Necessary |
 
+## Props Table - NotificationHeader
+| Attribute Name |     Attribute Explain     | Parameter Type | Default Value | Requirement |
+|---------|--------------------------|:-----:|:-----:|:-----:|
+| header | Header | Header | null | Requirement |
+| notifier | Linked Notifier | LinkHeaderNotifier | null | Optional |
+
+## Props Table - NotificationFooter
+| Attribute Name |     Attribute Explain     | Parameter Type | Default Value | Requirement |
+|---------|--------------------------|:-----:|:-----:|:-----:|
+| footer | Footer | Footer | null | Requirement |
+| notifier | Linked Notifier | LinkFooterNotifier | null | Optional |

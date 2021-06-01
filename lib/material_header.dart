@@ -9,14 +9,14 @@ const Duration _kIndicatorScaleDuration = Duration(milliseconds: 200);
 
 /// 质感设计Header
 class MaterialHeader extends Header {
-  final Key key;
+  final Key? key;
   final double displacement;
 
   /// 颜色
-  final Animation<Color> valueColor;
+  final Animation<Color?>? valueColor;
 
   /// 背景颜色
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   final LinkHeaderNotifier linkNotifier = LinkHeaderNotifier();
 
@@ -52,7 +52,7 @@ class MaterialHeader extends Header {
       double refreshIndicatorExtent,
       AxisDirection axisDirection,
       bool float,
-      Duration completeDuration,
+      Duration? completeDuration,
       bool enableInfiniteRefresh,
       bool success,
       bool noMore) {
@@ -81,18 +81,20 @@ class MaterialHeader extends Header {
 /// 质感设计Header组件
 class MaterialHeaderWidget extends StatefulWidget {
   final double displacement;
+
   // 颜色
-  final Animation<Color> valueColor;
+  final Animation<Color?>? valueColor;
+
   // 背景颜色
-  final Color backgroundColor;
+  final Color? backgroundColor;
   final LinkHeaderNotifier linkNotifier;
 
   const MaterialHeaderWidget({
-    Key key,
-    this.displacement,
+    Key? key,
+    required this.displacement,
     this.valueColor,
     this.backgroundColor,
-    this.linkNotifier,
+    required this.linkNotifier,
   }) : super(key: key);
 
   @override
@@ -107,16 +109,21 @@ class MaterialHeaderWidgetState extends State<MaterialHeaderWidget>
       Tween<double>(begin: 1.0, end: 0.0);
 
   RefreshMode get _refreshState => widget.linkNotifier.refreshState;
+
   double get _pulledExtent => widget.linkNotifier.pulledExtent;
+
   double get _riggerPullDistance =>
       widget.linkNotifier.refreshTriggerPullDistance;
-  Duration get _completeDuration => widget.linkNotifier.completeDuration;
+
+  Duration? get _completeDuration => widget.linkNotifier.completeDuration;
+
   AxisDirection get _axisDirection => widget.linkNotifier.axisDirection;
+
   bool get _noMore => widget.linkNotifier.noMore;
 
   // 动画
-  AnimationController _scaleController;
-  Animation<double> _scaleFactor;
+  late AnimationController _scaleController;
+  late Animation<double> _scaleFactor;
 
   @override
   void initState() {
@@ -127,23 +134,27 @@ class MaterialHeaderWidgetState extends State<MaterialHeaderWidget>
 
   @override
   void dispose() {
-    super.dispose();
     _scaleController.dispose();
+    super.dispose();
   }
 
   // 是否刷新完成
   bool _refreshFinish = false;
+
   set refreshFinish(bool finish) {
     if (_refreshFinish != finish) {
       if (finish) {
-        Future.delayed(_completeDuration - Duration(milliseconds: 300), () {
+        Future.delayed(_completeDuration! - Duration(milliseconds: 300), () {
           if (mounted) {
             _scaleController.animateTo(1.0, duration: _kIndicatorScaleDuration);
           }
         });
-        Future.delayed(_completeDuration, () {
-          _refreshFinish = false;
-          _scaleController.animateTo(0.0, duration: Duration(milliseconds: 10));
+        Future.delayed(_completeDuration!, () {
+          if (mounted) {
+            _refreshFinish = false;
+            _scaleController.animateTo(0.0,
+                duration: Duration(milliseconds: 10));
+          }
         });
       }
       _refreshFinish = finish;
@@ -168,30 +179,68 @@ class MaterialHeaderWidgetState extends State<MaterialHeaderWidget>
     }
     return Container(
       height: isVertical
-          ? _refreshState == RefreshMode.inactive ? 0.0 : _pulledExtent
+          ? _refreshState == RefreshMode.inactive
+              ? 0.0
+              : _pulledExtent
           : double.infinity,
       width: !isVertical
-          ? _refreshState == RefreshMode.inactive ? 0.0 : _pulledExtent
+          ? _refreshState == RefreshMode.inactive
+              ? 0.0
+              : _pulledExtent
           : double.infinity,
       child: Stack(
         children: <Widget>[
           Positioned(
-            top: isVertical ? isReverse ? 0.0 : null : 0.0,
-            bottom: isVertical ? !isReverse ? 0.0 : null : 0.0,
-            left: !isVertical ? isReverse ? 0.0 : null : 0.0,
-            right: !isVertical ? !isReverse ? 0.0 : null : 0.0,
+            top: isVertical
+                ? isReverse
+                    ? 0.0
+                    : null
+                : 0.0,
+            bottom: isVertical
+                ? !isReverse
+                    ? 0.0
+                    : null
+                : 0.0,
+            left: !isVertical
+                ? isReverse
+                    ? 0.0
+                    : null
+                : 0.0,
+            right: !isVertical
+                ? !isReverse
+                    ? 0.0
+                    : null
+                : 0.0,
             child: Container(
               padding: EdgeInsets.only(
-                top: isVertical ? isReverse ? 0.0 : widget.displacement : 0.0,
-                bottom:
-                    isVertical ? !isReverse ? 0.0 : widget.displacement : 0.0,
-                left: !isVertical ? isReverse ? 0.0 : widget.displacement : 0.0,
-                right:
-                    !isVertical ? !isReverse ? 0.0 : widget.displacement : 0.0,
+                top: isVertical
+                    ? isReverse
+                        ? 0.0
+                        : widget.displacement
+                    : 0.0,
+                bottom: isVertical
+                    ? !isReverse
+                        ? 0.0
+                        : widget.displacement
+                    : 0.0,
+                left: !isVertical
+                    ? isReverse
+                        ? 0.0
+                        : widget.displacement
+                    : 0.0,
+                right: !isVertical
+                    ? !isReverse
+                        ? 0.0
+                        : widget.displacement
+                    : 0.0,
               ),
               alignment: isVertical
-                  ? isReverse ? Alignment.topCenter : Alignment.bottomCenter
-                  : isReverse ? Alignment.centerLeft : Alignment.centerRight,
+                  ? isReverse
+                      ? Alignment.topCenter
+                      : Alignment.bottomCenter
+                  : isReverse
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
               child: ScaleTransition(
                 scale: _scaleFactor,
                 child: RefreshProgressIndicator(
